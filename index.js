@@ -1,11 +1,12 @@
-var gitlab = require('lib/gitlab');
-var mod = {
+var gitlab = require('./lib/gitlab.js');
 
-    /**
-     * 
-     */
+
+module.exports =　function(){
+
     
 
-};
 
-module.exports = mod;
+
+
+
+}();

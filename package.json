@@ -4,7 +4,7 @@
   "description": "project metrics tool",
   "main": "index.js",
   "scripts": {
-    "test": "jasmin-node specs"
+    "test": "jasmine-node specs"
   },
   "repository": {
     "type": "git",
