@@ -1,46 +1,59 @@
-# Kata-project
+# kata-project
 
 ![kata.png](./kata.png)
 
 プロジェクトをもっと簡単に計測しよう！
 
-# インストール
+# 1.インストール
 
 ```
 > npm install kitfactory/kata-project
 
 ```
 
-# 利用方法:
+# 2.利用方法:
 
-## 事前準備
+## 2.1.事前準備
 
+本ツールではNode.js、Elasticserach、Kibanaが必要です。
+それぞれを準備しておいてください。
 
+## 2.2.計測コード
 
-## 計測コード
-
-わずか数行でプロジェクトが計測できます。
+わずか数行でプロジェクトが計測できます。JenkinsなどのCIツールで定期スナップを取得するのがおすすめです。
 
 ```
 var kata = require('kata-project');
 
 kata.initGitLab("http://..../api/v3", key  );
-kata.initElastic("host",port);
+kata.initElastic("localhost",port);
 kata.issue.GitLab2Elastic( projectid , "index" );
 
 kata.calc.EvmProject("index",["filter_label"] "dest_index");
-
 
 ```
 
 
 
-# 説明
+# 3.説明
 
-kata-projectはプロジェクト計測を簡単にするツールです。プロジェクト計測用のデータ型を定義し、各ツールの入力をデータ型に変換することで様々なツールを横断して、自然とプロジェクトが計測できるようになります。
+kata-projectはプロジェクト計測を簡単にするツールです。kata-projectではプロジェクト計測用に各ツールの共通「データ型」を定義します。そして、各ツールの入力を共通の「データ型」に変換することで様々なツールを横断して、自然とプロジェクトが計測できるようになります。
+
+## 3.1. 例：プロジェクトの進捗の計測
 
 
-# Kata-Issue-Type
+![kata-tool](./kata-tool.001.png)
+
+
+
+## 3.2. 例：プロジェクトのテストの状況
+
+![kata-tool](./kata-tool.002.png)
+
+
+# 4.共通データ型
+
+## 4.1.Kata-Issue-Type
 
 |項目|内容|
 |:--|:--|
@@ -56,7 +69,7 @@ kata-projectはプロジェクト計測を簡単にするツールです。プ�
 |estimation|見積工数|
 |json|オリジナルのJSONデータ|
 
-# Kata-Item-Type
+## 4.2.Kata-Item-Type
 
 |項目|内容|
 |:--|:--|
@@ -67,7 +80,9 @@ kata-projectはプロジェクト計測を簡単にするツールです。プ�
 |json|オリジナルJSONのデータ|
 
 
-# Kata-Snapshot-Type
+## 4.3.Kata-Snapshot-Type
+
+kata.calc.Rankで作成されます。
 
 |項目|内容|
 |:--|:--|
@@ -77,14 +92,16 @@ kata-projectはプロジェクト計測を簡単にするツールです。プ�
 |C|Cの数|
 ...
 
-# Kata-Evm-Type
+## 4.4.Kata-Progress-Type
+
+kata.calc.Progressで作成されます。
 
 |項目|内容|
 |:--|:--|
 |timestamp|時間|
 |total|合計見積|
-|planned|計画値|
-|progress|実績値|
+|planned|timestamp時点計画値|
+|progress|timestamp時点実績値|
 
 
 
