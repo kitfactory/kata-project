@@ -1,6 +1,6 @@
 var elastic = require("../lib/elastic.js");
 
-var mapper = elastic.getMapper( "localhost" , 9200 , "test" , "test");
+var mapper = elastic.getMapper( "localhost" , 9200 , "testi" , "test");
 
 var obj = {
     id: 1,
@@ -9,7 +9,10 @@ var obj = {
     date:"2016-11-30",
 };
 
+console.log("get mapper ");
+
 describe( "insert&update&delete" ,function(){
+    /*
     it( "delete" , function( done ){
         mapper.delete( obj.id , function(error,result){
          console.log( "delete test" );
@@ -17,6 +20,7 @@ describe( "insert&update&delete" ,function(){
             done();
         });
     });
+    */
 
     it( "insert" , function( done ){
         mapper.insert( obj , function(error,result){
@@ -26,6 +30,7 @@ describe( "insert&update&delete" ,function(){
         });
     });
 
+    /*
     it( "update" , function( done ){
         obj.title = "title2";
         mapper.update( obj , function(error,result){
@@ -38,13 +43,14 @@ describe( "insert&update&delete" ,function(){
     it( "search" , function( done ){
         obj.title = "title2";
         mapper.search( "id:1" , function(error,result){
-         console.log( "search test" + error);
+         console.log( "search test");
             expect( true ).toBe( error == null );
             expect( true ).toBe( result.hits.hits.length == 1 );
             done();
         });
     });
 
+    */
 
 });
 
