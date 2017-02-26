@@ -12,6 +12,8 @@ describe( "gitlab" , function(){
         gitlab.getDescriptionProperties( issue );
     });
 
+    
+
 
     it( "getIssues" , function( done ){
         gitlab.getProjectIssues( project_id , function(error, result){

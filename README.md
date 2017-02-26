@@ -28,12 +28,9 @@ var kata = require('kata-project');
 kata.initGitLab("http://..../api/v3", key  );
 kata.initElastic("localhost",port);
 kata.issue.GitLab2Elastic( projectid , "index" );
-
 kata.calc.EvmProject("index",["filter_label"] "dest_index");
 
 ```
-
-
 
 # 3.説明
 
@@ -41,15 +38,11 @@ kata-projectはプロジェクト計測を簡単にするツールです。kata-
 
 ## 3.1. 例：プロジェクトの進捗の計測
 
-
 ![kata-tool](./kata-tool.001.png)
-
-
 
 ## 3.2. 例：プロジェクトのテストの状況
 
 ![kata-tool](./kata-tool.002.png)
-
 
 # 4.共通データ型
 
@@ -87,9 +80,9 @@ kata.calc.Rankで作成されます。
 |項目|内容|
 |:--|:--|
 |timestamp|時間|
-|A|Aの数|
-|B|Bの数|
-|C|Cの数|
+|A|項目A|
+|B|項目B|
+|json|オリジナルデータ|
 ...
 
 ## 4.4.Kata-Progress-Type
