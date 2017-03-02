@@ -35,6 +35,8 @@
     "kata-aggregate-ranking": "bin/aggregate-ranking.js"
   },
   "devDependencies": {
-    "@types/node": "^7.0.5"
+    "@types/jasmine": "^2.5.43",
+    "@types/node": "^7.0.5",
+    "async-await-jasmine": "0.0.2"
   }
 }
