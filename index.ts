@@ -2,21 +2,16 @@ var gitlab = require('./lib/gitlab.js');
 var github = require('./lib/github.js');
 var elastic = require( './lib/elastic.js');
 
-//Kata
-var Issue = require('./lib/issue.js');
-var Snapshot = require('./lib/snapshot.js');
-var Progress = require('./lib/progress.js');
-
-import {Foo} from "./lib/kata";
 
 //not implemented.
 var redmine = {};
 var exel = {};
 
-exports.Issue = Issue;
-exports.Snapshot = Snapshot;
-exports.Progress = Progress;
-exports = {Foo};
+var issue:Issue = new Issue();
+
+
+
+
 
 /*
 

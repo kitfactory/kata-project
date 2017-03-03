@@ -1,3 +1,8 @@
+
+declare enum IssueStatus{
+    open,
+    close
+}
 /*
 |項目|内容|
 |:--|:--|
@@ -13,7 +18,7 @@ declare class Item {
     public ok:number;
     public ng:number;
     public json:any;
-};
+}
 
 
 /*
@@ -32,9 +37,6 @@ declare class Item {
 |json|オリジナルのJSONデータ|
 */
 declare class Issue{
-    constructor(){
-
-    }
     public title:string;
     public description:string;
     public startdate:Date;
@@ -65,10 +67,7 @@ declare class Progress{
  * 
  * 
  */
-class Snapshot{
+declare class Snapshot{
     public timestamp:Date;
     public json:any;
 }
-
-
-

@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "project metrics tool",
   "main": "index.js",
+  "types": "./lib/kata.d.ts",
   "scripts": {
     "test": "jasmine-node specs"
   },
@@ -39,4 +40,5 @@
     "@types/node": "^7.0.5",
     "async-await-jasmine": "0.0.2"
   }
+
 }

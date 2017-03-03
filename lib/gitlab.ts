@@ -3,7 +3,6 @@
 var request = require('request');
 var kata = require('../index');
 
-/// reference path="./kata.ts"
 
 const PROPERTY_START = "\*\*";
 const PROPERTY_END = "\*\*";
