@@ -1,7 +1,8 @@
 import {$it} from "../node_modules/async-await-jasmine/dist/src/async-await-jasmine";
 
-var elastic = require("../lib/elastic.js");
+import {ElasticSearch} from "../index";
 
+var elastic = new ElasticSearch();
 var mapper = elastic.getMapper( "localhost" , 9200 , "testi" , "test");
 
 var obj = {

@@ -1,28 +1,30 @@
 'use strict';
+import { Issue } from './kata';
 
 var request = require('request');
-var kata = require('../index');
+const PROPERTY_START = "+*";
+const PROPERTY_END = "*+";
+const START_DATE = "開始日";
+const PROGRESS = "進捗";
 
-
-const PROPERTY_START = "\*\*";
-const PROPERTY_END = "\*\*";
-
-class GitLab {
+export class GitLab {
     apiURL:string;
     key:string;
 
     constructor(){
     }
-    init( apiURL:string , key:string){
+
+    init = ( apiURL:string , key:string)=>{
         this.apiURL = apiURL;
         this.key = key;
     }
 
-    private recursiveGet( baseUrl:string , items:Array<any> , page:number , callback:Function ){
+    recursiveGet =( baseUrl:string , items:Array<any> , page:number , callback:Function )=>{
         var uri =  baseUrl + "&page=" + page;
         var opt = {
             uri: uri
         };
+        var self = this;
         request.get(opt,function(error,response,body){ 
             if( error ){
                 callback( error , null );
@@ -32,21 +34,36 @@ class GitLab {
                     callback( null, items );
                 }else{
                     items = items.concat( body );
-                    this.recursiveGet( baseUrl , items , page+1 , callback );
+                    self.recursiveGet( baseUrl , items , page+1 , callback );
                 }
             }
         });
     }
 
-    private getProjectIssuesAsync(project:string , callback:Function ){
+    getProjectIssuesAsync(project:string , callback:Function ){
         var base =  this.apiURL+"/projects/"+project+"/issues?private_token="+this.key;
         this.recursiveGet( base , [] , 1 , callback );
     };
 
+    /**
+     * Promiseで取得する。
+     * @param project
+     */
     getProjectIssue( project:string ): Promise<any> {
+        var self:GitLab = this;
         var ret = new Promise( function(resolve:Function){
-            this.getProjectIssueAsync(project,function( error , items ){
-                resolve( error , items );                
+            self.getProjectIssuesAsync(project,function( error , items ){
+                var ret ={};
+                if( items !== null ){
+                    let i:number;
+                    let issues = [];
+                    for( i = 0 ;  i < items.length ; i++ ){
+                        issues.push( self.getDescriptionProperties( items[i] ));
+                    }
+                    resolve( {"error":null , "item":issues} );                
+                }else{
+                    resolve( {"error":error , "item":null } );
+                }
             });
         });
         return ret;
@@ -55,8 +72,8 @@ class GitLab {
     /**
      * 
      */
-    getDescriptionProperties= function( issue:any   ){
-        var properties = {};
+    getDescriptionProperties( issue:any   ){
+        var properties:any = {};
         var description = issue.description;
         var line = description.split("\n");
         var pattern = /\*\*.*\*\*/;
@@ -73,25 +90,22 @@ class GitLab {
                 }
             }
         }
-        var ret:Issue = new kata.Issue();
+        var ret:Issue = new Issue();
         ret.title = issue.title;
-        ret.description = issue.description;
-        if( properties["progress"] ){
-            ret.progress = issue.progress;
-        }        
+        ret.description = description;
+        ret.assignee = issue.assignee;
         ret.duedate = issue.duedate;
-        ret.startdate = issue.startdate;
         ret.status = issue.status;
+
+        if( properties.progress ){
+            ret.progress = properties.progress;
+        }
+
+
+        ret.startdate = issue.startdate;
         ret.estimation = issue.estimation;
         ret.assignee = issue.assinee;
         ret.json = issue;
-        return properties;
+        return ret;
     };
-
 }
-
-
-
-module.exports = function(){
-    return new GitLab();
-}();
