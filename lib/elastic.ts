@@ -29,12 +29,31 @@ export class ElasticsearchMapper {
         },callback);
     }
 
+    /**
+     * 
+     * @param obj 
+     * @param callback 
+     */
     bulk( obj:any , callback:Function ){
         this.client.index({
             index: this.index,
             type: this.type,
             body: obj
         },callback);
+    }
+
+    bulkPromise( obj:any ){
+        var c = this.client;
+        var ret = new Promise<string>( function( resuolve ){
+        c.index({
+            index: this.index,
+            type: this.type,
+            body: obj
+        },function(){
+
+        });
+
+        });
     }
 
     update( obj:any ,callback:Function ){
@@ -72,7 +91,7 @@ export class ElasticsearchMapper {
         });
     }
 
-    
+
 }
 
 export class ElasticSearch {

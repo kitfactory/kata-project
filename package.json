@@ -26,7 +26,10 @@
   },
   "homepage": "https://github.com/kitfactory/kata-project#readme",
   "dependencies": {
+    "@types/configstore": "^2.1.0",
+    "configstore": "^3.0.0",
     "elasticsearch": "^12.1.3",
+    "momentjs": "^2.0.0",
     "request": "^2.79.0"
   },
   "bin": {
@@ -40,5 +43,4 @@
     "@types/node": "^7.0.5",
     "async-await-jasmine": "0.0.2"
   }
-
 }

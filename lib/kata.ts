@@ -1,3 +1,10 @@
+import * as Configstore from  'configstore';
+import {ElasticSearch} from './elastic';
+import {ElasticsearchMapper} from './elastic';
+
+const pkg = require('./package.json');
+
+
 
 export enum IssueStatus{
     open,
@@ -77,6 +84,29 @@ export class Snapshot{
 
 export class KataUtil {
 
+    public testTime:Date = null;
+
+    public config:Configstore = null;
+
+    constructor(){
+        var config:Configstore = new Configstore( pkg.name, {
+            "GITLAB_URL": "foo",
+            "GITLAB_ESTIMATION_KEYWORD": "見積",
+            "GITLAB_STARTDATE_KEYWORD": "開始日",
+            "GITLAB_DUEDATE_KEYWORD": "終了日",
+
+
+        });
+    }
+
+    getCurrentTime():number {
+        if( this.testTime ){
+            return this.testTime.getTime();
+        }else{
+            return new Date().getTime();
+        }
+    }
+
     /**
      * 指定のラベルだけにする。
      * @param label 
@@ -102,7 +132,7 @@ export class KataUtil {
     }
 
     /**
-     * 
+     * 進捗を計算する。
      * @param issue 
      */
     calculateProgress( issue:Issue[] ):Progress{
@@ -111,16 +141,40 @@ export class KataUtil {
         let total = 0;
         let planned = 0;
         let done = 0;
-        let current = new Date().getMilliseconds();
+        let current = this.getCurrentTime();
         for( i = 0 ; i < issue.length ; i++ ){
+            //見積値は常に総和を取る。
             total = total + issue[i].estimation;
-            //終了していればdoneに追加
-            if( issue[i].progress == 100 ){
-                done = done + issue[i].estimation;
+            //進捗値を追加
+            if( issue[i].progress ){
+                done = done + (issue[i].estimation * issue[i].progress / 100.0);
             }
             //完了しているはずであればplannedに追加
-            if( issue[i].duedate.getMilliseconds() <= current ){
-                planned = planned + issue[i].estimation;
+            if( issue[i].startdate ){
+                console.log( "startdate : " + issue[i].startdate.getTime() );
+                console.log( "duedate : " + issue[i].duedate.getTime() );
+                console.log( "testtime: " + current );
+                let start = issue[i].startdate.getTime();
+                let due = issue[i].duedate.getTime();
+                //既にタスクは始まった
+                if( start <= current ){
+                    if( due <= current ){
+                        //締め切りも過ぎていたら全てをカウント
+                        console.log( "(pattern 1)plan[" + i +"]=" + issue[i].estimation );
+                        planned = planned + issue[i].estimation;
+                    }else{
+                        //締切はまだであれば、時間差で配分
+                        let past = (current-start)/(due-start);
+                        planned = planned + (issue[i].estimation * past);
+                        console.log( "(pattern 2)plan[" + i +"]=" + (issue[i].estimation * past) );
+                    }
+                }
+            }else{
+                //開始日設定はない場合は締め切りのみでカウント
+                if( issue[i].duedate.getTime() <= current ){
+                    planned = planned + issue[i].estimation;
+                    console.log( "(pattern 3)plan[" + i +"]=" + issue[i].estimation );
+                }
             }
         }
         ret.total = total;
@@ -136,16 +190,18 @@ export class KataUtil {
     calculateUnfinishedTaskForEachMember( issue:Issue[] ):Snapshot {
         let ret = new Snapshot();
         ret.json = {};
-        ret.timestamp = new Date();
-        let current = ret.timestamp.getMilliseconds();
+        let current = this.getCurrentTime();
+        let d = new Date();
+        d.setMilliseconds( current );
+        ret.timestamp = d;
         let i = 0;
         for( i = 0 ; i < issue.length ; i++ ){
             let assignee = issue[i].assignee;
             if( ! ret.json[assignee] ){
                 ret.json[assignee] = 0;
             }           
-            //完了しているはずで、未完了分を追加
-            if( issue[i].duedate.getMilliseconds() <= current ){
+            //完了しているはずの、未完了分を追加
+            if( issue[i].duedate.getTime() <= current ){
                 if( issue[i].progress !== 100 ){
                     ret.json[assignee] = ret.json[assignee] + (issue[i].progress*issue[i].estimation);
                 }
@@ -171,5 +227,24 @@ export class KataUtil {
                 ret.json[assignee] = ret.json[assignee] + 1;
             }
         }
+    }
+
+    openGitLab(){
+        ;
+    }
+
+
+    saveSnapshot( name:string , obj:Snapshot ){
+        if( ! obj ){
+            return;
+        }
+
+        
+
+
+    }
+
+    saveIssueElastic( name:string , issues:Issue[] ){
+        ;
     }
 }

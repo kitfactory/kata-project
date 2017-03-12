@@ -1,5 +1,7 @@
 'use strict';
 import { Issue } from './kata';
+import * as moment from "moment";
+
 
 var request = require('request');
 const PROPERTY_START = "--";
