@@ -87,7 +87,6 @@ describe( "issue_test" , function(){
           * 合計 progress 38 / @lanned 25 くらい / total 50
           */
 
-
         var issues:Issue[] = [expired,undone,past_done,future_done,not_start];
         var progress:Progress = util.calculateProgress( issues );
         console.log( "progress %j " , progress );

@@ -2,7 +2,6 @@
 import { Issue } from './kata';
 import * as moment from "moment";
 
-
 var request = require('request');
 const PROPERTY_START = "--";
 const PROPERTY_END = "--";
@@ -91,20 +90,19 @@ export class GitLab {
                     var key = match[0].replace( /--/g , "" );
                     var val = line[i+1].trim();
                     console.log("key " + key );
-                    if( key === START_DATE ){
+                    if( key.indexOf(START_DATE)!== -1 ){
                         properties.startdate = val;
                         var d = new Date( val );
                         console.log("startdate:" + d );
                     }
-                    if( key === ESTIMATION ){
+                    if( key.indexOf( ESTIMATION )!== -1 ){
                         properties.estimation = val;
                         console.log("estimation:"+val);
                     }
-                    if( key === PROGRESS ){
+                    if( key.indexOf( PROGRESS )!== -1 ){
                         properties.progress = val;
                         console.log("progress:"+val);
                     }
-
                     properties[key]=val;                    
                 }
             }
@@ -120,7 +118,7 @@ export class GitLab {
             let due = new Date( issue.due_date );
             due.setHours( 23 );
             due.setMinutes( 59 );
-            console.log( "due_date" + due.toUTCString() );
+            due.setUTCSeconds( 59 );
             ret.duedate = due;
         }
         if( issue.web_url ){
@@ -143,7 +141,6 @@ export class GitLab {
                 ret.progress = 100;
             }
         }
-
         if( properties.estimation ){
             ret.estimation = properties.estimation;
         }

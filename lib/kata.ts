@@ -1,10 +1,13 @@
 import * as Configstore from  'configstore';
 import {ElasticSearch} from './elastic';
 import {ElasticsearchMapper} from './elastic';
+import {ElasticResult} from './elastic';
 
-const pkg = require('./package.json');
-
-
+export class MemberState{
+    public name:string;
+    public issues:Issue[];
+    public progress:Progress;
+}
 
 export enum IssueStatus{
     open,
@@ -64,12 +67,14 @@ export class Issue{
 |total|合計見積|
 |planned|timestamp時点計画値|
 |progress|timestamp時点実績値|
+|unfinished|timestamp時点未完了タスク|
 */
 export class Progress{
     public timestamp:Date;
     public total:number;
     public planned:number;
     public progress:number;
+    public unfinished:number;
 }
 
 /**
@@ -81,7 +86,6 @@ export class Snapshot{
     public json:any;
 }
 
-
 export class KataUtil {
 
     public testTime:Date = null;
@@ -89,14 +93,16 @@ export class KataUtil {
     public config:Configstore = null;
 
     constructor(){
-        var config:Configstore = new Configstore( pkg.name, {
-            "GITLAB_URL": "foo",
-            "GITLAB_ESTIMATION_KEYWORD": "見積",
-            "GITLAB_STARTDATE_KEYWORD": "開始日",
-            "GITLAB_DUEDATE_KEYWORD": "終了日",
+    }
 
+    private elasticHost:string;
+    private elasticPort:number;
+    private elastic:ElasticSearch;
 
-        });
+    initElasticSearch( host:string , port:number ){
+        this.elasticHost = host;
+        this.elasticPort = port;
+        this.elastic = new ElasticSearch();
     }
 
     getCurrentTime():number {
@@ -184,7 +190,20 @@ export class KataUtil {
     }
 
     /**
-     * 
+     * メンバーごとにイシューを振り分け
+     * @param issue 
+     */
+    private groupByMembers( issue:Issue[] ):any{
+        let ret = {};
+        let i = 0;
+        for( i = 0; i < issue.length ; i++ ){
+            ;
+        }
+        return null;
+    }
+
+    /**
+     * 各メンバー分の未完了タスクを計算する。
      * @param issue 
      */
     calculateUnfinishedTaskForEachMember( issue:Issue[] ):Snapshot {
@@ -192,7 +211,7 @@ export class KataUtil {
         ret.json = {};
         let current = this.getCurrentTime();
         let d = new Date();
-        d.setMilliseconds( current );
+        d.setTime( current );
         ret.timestamp = d;
         let i = 0;
         for( i = 0 ; i < issue.length ; i++ ){
@@ -200,7 +219,7 @@ export class KataUtil {
             if( ! ret.json[assignee] ){
                 ret.json[assignee] = 0;
             }           
-            //完了しているはずの、未完了分を追加
+            //完了しているはずのタスクの未完了分を追加
             if( issue[i].duedate.getTime() <= current ){
                 if( issue[i].progress !== 100 ){
                     ret.json[assignee] = ret.json[assignee] + (issue[i].progress*issue[i].estimation);
@@ -233,18 +252,18 @@ export class KataUtil {
         ;
     }
 
+    saveIssue( name:string , issue:Issue ):Promise<ElasticResult>{
+        let m:ElasticsearchMapper = this.elastic.getMapper( this.elasticHost , this.elasticPort , name , name+"Issue" );
+        return m.promiseBulk( issue );
+    };
 
-    saveSnapshot( name:string , obj:Snapshot ){
-        if( ! obj ){
-            return;
-        }
-
-        
-
-
+    saveSnapshot( name:string , obj:Snapshot ) :Promise<ElasticResult>{
+        let m:ElasticsearchMapper = this.elastic.getMapper( this.elasticHost , this.elasticPort , name , name+"Snapshot" );
+        return m.promiseBulk( obj );
     }
 
-    saveIssueElastic( name:string , issues:Issue[] ){
-        ;
+    saveProgress( name:string , obj:Progress ) : Promise<ElasticResult>{
+        let m:ElasticsearchMapper = this.elastic.getMapper( this.elasticHost , this.elasticPort , name , name+"Progress" );
+        return m.promiseBulk( obj );
     }
 }

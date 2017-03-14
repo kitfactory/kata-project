@@ -1,9 +1,10 @@
 import {$it} from "../node_modules/async-await-jasmine/dist/src/async-await-jasmine";
 
 import {ElasticSearch} from "../index";
+import {ElasticResult} from "../index";
 
 var elastic = new ElasticSearch();
-var mapper = elastic.getMapper( "localhost" , 9200 , "testi" , "test");
+var mapper = elastic.getMapper( "localhost" , 9200 , "test" , "test");
 
 var obj = {
     id: 1,
@@ -16,27 +17,53 @@ console.log("get mapper ");
 
 describe("async-test in zone", () => {
     $it("in zone", async () => {
-        console.log("hello");
+        let result = await async_foo();
+        console.log("result = " + result );
+        expect(true).toBe(result);
     });
-
 });
 
 async function async_log(msg:string) {
     console.log("[async] " + msg);
 }
 
-/*
+function async_foo():Promise<any>{
+    let ret:Promise<any> = new Promise<any>( function(resolve){
+        setTimeout( function(){
+            console.log( "lately!!");
+            resolve( true );
+        } , 2000 );
+    });
+    return ret;
+}
 
 describe( "insert&update&delete" ,()=>{
-    it( "delete" , function( done ){
-        mapper.delete( obj.id , function(error,result){
-         console.log( "delete test" );
-            expect( true ).toBe( error == null );
-            done();
-        });
+
+    $it( "insert" , async ()=>{
+        let result:ElasticResult = await mapper.promiseInsert( obj );
+        console.log( "insert result %j" , result );
+        expect(result).toBeUndefined( result.error );        
     });
 
-    it( "insert" , function( done ){
+    $it( "bulk" , async ()=>{
+        let i = {
+            id: 2,
+            title: "title",
+            description: "description",
+            date:"2016-11-30",
+        };
+        let result:ElasticResult = await mapper.promiseBulk( i );
+        console.log( "insert result %j" , result );
+        expect(result).toBeUndefined( result.error );        
+    });
+
+    $it( "drop" , async()=>{
+        let result:ElasticResult = await mapper.promiseDrop();
+        console.log( "drop result %j" , result );
+        expect(result).toBeUndefined( result.error );        
+    })
+});
+/*
         mapper.insert( obj , function(error,result){
          console.log( "insert test" );
             expect( true ).toBe( error == null );
