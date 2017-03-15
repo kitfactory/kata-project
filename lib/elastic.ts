@@ -43,7 +43,7 @@ export class ElasticsearchMapper {
      */
     promiseInsert( obj:any ): Promise<ElasticResult>{
         let self = this;
-        let ret = new Promise<ElasticResult>( function(resolve){
+        let ret = new Promise<ElasticResult>( function(resolve,reject){
             self.client.create({
                     index: self.index,
                     type: self.type,
@@ -51,15 +51,14 @@ export class ElasticsearchMapper {
                     body: obj
             },function( error , result){
                 let o = new ElasticResult();
-                if( error ){
-                    console.log("this %j" , error );
-                    o.error = error;
-                }else{
-                    console.log("that");
-                    o.error = null;
-                }
                 o.result = result;
-                resolve( o );
+                if( error ){
+                    o.error = error;
+                    reject( o );
+                }else{
+                    o.error = null;
+                    resolve( o );
+                }
             });
         });
         return ret;
@@ -85,22 +84,21 @@ export class ElasticsearchMapper {
      */
     promiseBulk( obj:any ): Promise<ElasticResult>{
         var self = this;
-        var ret = new Promise<ElasticResult>( function( resolve ){
+        var ret = new Promise<ElasticResult>( function( resolve,reject ){
             self.client.index({
                 index: self.index,
                 type: self.type,
                 body: obj
             },function( error , result ){
-                let o = new ElasticResult();
-                if( error ){
-                    console.log("this");
-                    o.error = error;
-                }else{
-                    console.log("that");
-                    o.error = null;
-                }
-                o.result = result;
-                resolve( o );
+                        let o = new ElasticResult();
+                        o.result = result;
+                        if( error ){
+                            o.error = error;
+                            reject( o );
+                        }else{
+                            o.error = null;
+                            resolve( o );
+                        }
             });
         });
         return ret;
@@ -122,17 +120,22 @@ export class ElasticsearchMapper {
      */
     promiseUpdate( obj:any ):Promise<ElasticResult>{
         let self = this;
-        let ret = new Promise<ElasticResult>( function(resolve){
+        let ret = new Promise<ElasticResult>( function(resolve,reject){
             self.client.index({
                 index: self.index,
                 type: self.type,
                 id: obj.id,
                 body: obj
             } , function( error , result ){
-                let o = new ElasticResult();
-                o.error = error;
-                o.result = result;
-                resolve( o );
+                        let o = new ElasticResult();
+                        o.result = result;
+                        if( error ){
+                            o.error = error;
+                            reject( o );
+                        }else{
+                            o.error = null;
+                            resolve( o );
+                        }
             });
         });
         return ret;
@@ -152,16 +155,21 @@ export class ElasticsearchMapper {
      */
     promiseDelete( id:any ):Promise<ElasticResult>{
         let self = this;
-        let ret = new Promise<ElasticResult>(function(resolve){
+        let ret = new Promise<ElasticResult>(function(resolve,reject){
             self.client.delete({
                 index: this.index,
                 type: this.type,
                 id: id,
             } , function( error, result){
-                let o = new ElasticResult();
-                o.error = error;
-                o.result = result;
-                resolve( o );
+                        let o = new ElasticResult();
+                        o.result = result;
+                        if( error ){
+                            o.error = error;
+                            reject( o );
+                        }else{
+                            o.error = null;
+                            resolve( o );
+                        }
             });
         });
         return ret;
@@ -193,7 +201,7 @@ export class ElasticsearchMapper {
      */
     promiseSearch( query:string ) : Promise<ElasticResult>{
         let self = this;
-        let ret = new Promise<ElasticResult>(function(resolve){
+        let ret = new Promise<ElasticResult>(function(resolve ,reject){
             self.client.search({
                 index: self.index,
                 size: 0,
@@ -211,13 +219,14 @@ export class ElasticsearchMapper {
                         q: query
                     }, function( error , result ){
                         let o = new ElasticResult();
-                        if( !error ){
+                        o.result = result;
+                        if( error ){
                             o.error = error;
+                            reject( o );
                         }else{
                             o.error = null;
+                            resolve( o );
                         }
-                        o.result = result;
-                        resolve( o );
                     });
                 }
             });
@@ -230,18 +239,19 @@ export class ElasticsearchMapper {
      */
     promiseDrop():Promise<ElasticResult>{
         let self = this;
-        let ret:Promise<ElasticResult> = new Promise<ElasticResult>(function( resolve ){
+        let ret:Promise<ElasticResult> = new Promise<ElasticResult>(function( resolve , reject ){
             self.client.indices.delete({
                 index: self.index
             },function( error , result){
                 let o = new ElasticResult();
+                o.result = result;
                 if( error ){
                     o.error = error;
+                    reject( o );
                 }else{
                     o.error = null;
+                    resolve( o );
                 }
-                o.result = result;
-                resolve( o );
             });
         });
         return ret;

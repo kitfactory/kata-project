@@ -1,5 +1,3 @@
-import {$it} from "../node_modules/async-await-jasmine/dist/src/async-await-jasmine";
-
 import {ElasticSearch} from "../index";
 import {ElasticResult} from "../index";
 
@@ -16,12 +14,13 @@ var obj = {
 console.log("get mapper ");
 
 describe("async-test in zone", () => {
-    $it("in zone", async () => {
+    it("in zone", async ( done ) => {
         let result = await async_foo();
-        console.log("result = " + result );
-        expect(true).toBe(result);
-    });
+        expect(true).toBeTruthy( result );
+        done();
+    },10000);
 });
+
 
 async function async_log(msg:string) {
     console.log("[async] " + msg);
@@ -37,14 +36,35 @@ function async_foo():Promise<any>{
     return ret;
 }
 
-describe( "insert&update&delete" ,()=>{
 
-    $it( "insert" , async ()=>{
+describe( "insert&bulk&update&delete&drop" ,()=>{
+
+    it( "insert" , async function(done){
         let result:ElasticResult = await mapper.promiseInsert( obj );
         console.log( "insert result %j" , result );
-        expect(result).toBeUndefined( result.error );        
-    });
+        expect( result.error ).toBeNull();
+        done();
+    }, 2000 );
 
+    it( "bulk" , async function( done ){
+        let result:ElasticResult =  await mapper.promiseBulk( obj );
+        console.log( "bulk test" );
+        expect(result.error ).toBeNull();
+        done();
+    },2000 );
+
+
+
+
+    it( "drop" , async function( done ){
+        let result:ElasticResult = await mapper.promiseDrop();
+        console.log( "drop result %j" , result );
+        expect( result.error ).toBeNull();
+        done();
+    },2000);
+});
+
+/*
     $it( "bulk" , async ()=>{
         let i = {
             id: 2,
@@ -54,16 +74,13 @@ describe( "insert&update&delete" ,()=>{
         };
         let result:ElasticResult = await mapper.promiseBulk( i );
         console.log( "insert result %j" , result );
-        expect(result).toBeUndefined( result.error );        
     });
 
     $it( "drop" , async()=>{
         let result:ElasticResult = await mapper.promiseDrop();
         console.log( "drop result %j" , result );
-        expect(result).toBeUndefined( result.error );        
     })
 });
-/*
         mapper.insert( obj , function(error,result){
          console.log( "insert test" );
             expect( true ).toBe( error == null );
