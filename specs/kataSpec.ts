@@ -1,6 +1,7 @@
 import {KataUtil} from "../index";
 import {Issue} from "../index";
 import {Progress} from "../index";
+import {MemberIssue} from "../index";
 
 import * as moment from "moment";
 
@@ -91,10 +92,33 @@ describe( "issue_test" , function(){
         var progress:Progress = util.calculateProgress( issues );
         console.log( "progress %j " , progress );
 
-
     });
 
+    it( "member_issue" , function(){
+        let i1 = new Issue();
+        i1.assignee = "foo";
+        let i2 = new Issue();
+        i2.assignee = "foo";
+        let i3 = new Issue();
+        i3.assignee = "bar";
+        let i4 = new Issue();
+        i4.assignee = "baz";
 
+        let is = [i1,i2,i3,i4];
+
+        let util = new KataUtil();
+        let mi:MemberIssue[] = util.getMemberIssue( is );
+        expect( mi.length ).toBe( 3 );
+        mi.forEach( function(m ){
+            if( m.name == "foo"){
+                expect(m.issues.length ).toBe(2);
+            }else if( m.name === "bar" ){
+                expect(m.issues.length ).toBe(1);
+            }else if( m.name === "baz" ){
+                expect(m.issues.length ).toBe(1);
+            }
+        });
+    });
 
     it( "temporary" , function(){
         let m:moment.Moment= moment();

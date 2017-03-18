@@ -13,30 +13,6 @@ var obj = {
 
 console.log("get mapper ");
 
-describe("async-test in zone", () => {
-    it("in zone", async ( done ) => {
-        let result = await async_foo();
-        expect(true).toBeTruthy( result );
-        done();
-    },10000);
-});
-
-
-async function async_log(msg:string) {
-    console.log("[async] " + msg);
-}
-
-function async_foo():Promise<any>{
-    let ret:Promise<any> = new Promise<any>( function(resolve){
-        setTimeout( function(){
-            console.log( "lately!!");
-            resolve( true );
-        } , 2000 );
-    });
-    return ret;
-}
-
-
 describe( "insert&bulk&update&delete&drop" ,()=>{
 
     it( "insert" , async function(done){
@@ -47,14 +23,18 @@ describe( "insert&bulk&update&delete&drop" ,()=>{
     }, 2000 );
 
     it( "bulk" , async function( done ){
-        let result:ElasticResult =  await mapper.promiseBulk( obj );
         console.log( "bulk test" );
+        let result:ElasticResult =  await mapper.promiseBulk( obj );
         expect(result.error ).toBeNull();
         done();
     },2000 );
 
-
-
+    it( "update" , async function( done ){
+        console.log( "update test" );
+        let result:ElasticResult =  await mapper.promiseUpdate( obj );
+        expect(result.error ).toBeNull();
+        done();
+    });
 
     it( "drop" , async function( done ){
         let result:ElasticResult = await mapper.promiseDrop();

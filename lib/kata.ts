@@ -3,10 +3,9 @@ import {ElasticSearch} from './elastic';
 import {ElasticsearchMapper} from './elastic';
 import {ElasticResult} from './elastic';
 
-export class MemberState{
+export class MemberIssue{
     public name:string;
     public issues:Issue[];
-    public progress:Progress;
 }
 
 export enum IssueStatus{
@@ -157,29 +156,23 @@ export class KataUtil {
             }
             //完了しているはずであればplannedに追加
             if( issue[i].startdate ){
-                console.log( "startdate : " + issue[i].startdate.getTime() );
-                console.log( "duedate : " + issue[i].duedate.getTime() );
-                console.log( "testtime: " + current );
                 let start = issue[i].startdate.getTime();
                 let due = issue[i].duedate.getTime();
                 //既にタスクは始まった
                 if( start <= current ){
                     if( due <= current ){
                         //締め切りも過ぎていたら全てをカウント
-                        console.log( "(pattern 1)plan[" + i +"]=" + issue[i].estimation );
                         planned = planned + issue[i].estimation;
                     }else{
                         //締切はまだであれば、時間差で配分
                         let past = (current-start)/(due-start);
                         planned = planned + (issue[i].estimation * past);
-                        console.log( "(pattern 2)plan[" + i +"]=" + (issue[i].estimation * past) );
                     }
                 }
             }else{
                 //開始日設定はない場合は締め切りのみでカウント
                 if( issue[i].duedate.getTime() <= current ){
                     planned = planned + issue[i].estimation;
-                    console.log( "(pattern 3)plan[" + i +"]=" + issue[i].estimation );
                 }
             }
         }
@@ -190,16 +183,29 @@ export class KataUtil {
     }
 
     /**
-     * メンバーごとにイシューを振り分け
+     * メンバーごとにイシューを分類
      * @param issue 
      */
-    private groupByMembers( issue:Issue[] ):any{
-        let ret = {};
+     getMemberIssue( issue:Issue[] ):MemberIssue[]{
+        let tmp:Object = {};
         let i = 0;
-        for( i = 0; i < issue.length ; i++ ){
-            ;
-        }
-        return null;
+        issue.forEach( function( i ){
+            if( i.assignee ){
+                if( tmp[i.assignee] ){
+                    tmp[i.assignee].push( i );
+                }else{
+                    tmp[i.assignee] = [ i ];
+                }
+            }
+        });
+        let ret:MemberIssue[] =[];
+        Object.keys( tmp ).forEach( function( k ){
+            let t = new MemberIssue();
+            t.name = k;
+            t.issues = tmp[k];
+            ret.push( t );
+        });
+        return ret;
     }
 
     /**
