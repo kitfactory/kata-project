@@ -13,7 +13,7 @@ describe("gitlab", function () {
                 console.log("error" + error);
             }
             console.log("total result " + result.length);
-            expect(true).toBe(result.length == 2);
+            expect(result.length).toBe(4);
             done();
         });
     }, 200000);
@@ -21,7 +21,7 @@ describe("gitlab", function () {
         console.log("issues2");
         var promise = gitlab.getProjectIssue(project_id);
         promise.then((value) => {
-            var x = value.item;
+            var x = value.issues;
             console.log("end promise -> " + x.length);
             done();
         });

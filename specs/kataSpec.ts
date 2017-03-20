@@ -1,8 +1,15 @@
 import {KataUtil} from "../index";
 import {Issue} from "../index";
 import {Progress} from "../index";
+import {Snapshot} from "../index";
 import {MemberIssue} from "../index";
-
+import {GitLab} from "../index";
+import {GitLabResult} from "../index";
+import {ElasticSearch} from "../index";
+import {ElasticResult} from "../index";
+/*
+import {ElasticsearchMapper} from "../index";
+*/
 import * as moment from "moment";
 
 
@@ -120,11 +127,69 @@ describe( "issue_test" , function(){
         });
     });
 
-    it( "temporary" , function(){
-        let m:moment.Moment= moment();
-        
+    const project_id = "458780";
 
-    });
+    it( "gitlab" , async function( done ){
+        var gitlab:GitLab = new GitLab();
+        let url = "";
+        let key = "";
+        gitlab.init( "https://gitlab.com/api/v3" , process.env.GITLAB_TOKEN );
+        let result:GitLabResult = await gitlab.getProjectIssue(project_id);
+        expect( result.issues.length ).toBe( 4 );
+
+        let util = new KataUtil();
+        util.testTime = new Date("2017-03-20");
+
+        let filtered:Issue[] = util.filterIssues( "filter1" , result.issues );
+        expect( filtered.length ).toBe( 3 );
+        
+        // 現在値 3/20
+        // issue1 -> スルー
+        // issue2 -> 見積 20 / 計画 20 / 進捗 20 / 進捗 100% 
+        // issue3-> 見積 20 / 計画 20 / 進捗 18 / 進捗 90%
+        // issue4 見積 10　/ 計画 7くらい / 実施 5 / 進捗 50% 開始 3/1 締切 3/31 
+        /*
+        filtered.forEach( function(i){
+            console.log( "title " + i.title );
+            console.log( "issue 見積" + i.estimation );
+            console.log( "issue 進捗" + i.progress );
+            console.log( "issue 開始日" + i.startdate );                        
+            console.log( "issue 締切" + i.duedate );
+
+            let totalProgress:Progress = util.calculateProgress( [i] );
+            console.log( "total progress %j" , totalProgress );
+
+        });
+        */
+
+        let totalProgress:Progress = util.calculateProgress( filtered );
+        expect( totalProgress.total ).toBe( 50 );
+        expect( totalProgress.progress ).toBe(43 );
+        expect( totalProgress.planned ).toBe( 46.204083977356 );
+        
+        /*
+        console.log( "total progress %j" , totalProgress );
+        */
+
+        let mi:MemberIssue[] = util.getMemberIssue( filtered );
+        expect( mi.length ).toBe( 2 );
+        
+        mi.forEach( function( m:MemberIssue ){
+            console.log("caluculate member progress " + m.name );           
+            let p:Progress = util.calculateProgress( m.issues );
+            console.log( "mi " + m.name + " %j" , p );
+        });
+
+
+        let s:Snapshot = util.getMemberProgress( filtered );
+        console.log("snapshot %j"  ,  s );
+
+        util.initElasticSearch( "localhost" , 9200 );
+        let re:ElasticResult = await util.saveSnapshot( "member" , s );
+        console.log( "snapshot %j" , re );
+        expect( re.error ).toBeNull();
+        done();
+    }, 10000 );
 
 
 });

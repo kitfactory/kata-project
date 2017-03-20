@@ -9,6 +9,12 @@ const PROPERTY_END = "--";
 const START_DATE = "開始日";
 const PROGRESS = "進捗";
 const ESTIMATION = "見積";
+const ACTUALTIME ="実施";
+
+export class GitLabResult{
+    public error:any;
+    public issues:Issue[];
+}
 
 export class GitLab {
     apiURL:string;
@@ -52,20 +58,24 @@ export class GitLab {
      * Promiseで取得する。
      * @param project
      */
-    getProjectIssue( project:string ): Promise<any> {
+    getProjectIssue( project:string ): Promise<GitLabResult> {
         var self:GitLab = this;
         var ret = new Promise( function(resolve:Function){
             self.getProjectIssuesAsync(project,function( error , items ){
-                var ret ={};
+                let result:GitLabResult = new GitLabResult();
                 if( items !== null ){
                     let i:number;
                     let issues = [];
                     for( i = 0 ;  i < items.length ; i++ ){
                         issues.push( self.getDescriptionProperties( items[i] ));
                     }
-                    resolve( {"error":null , "item":issues} );                
+                    result.error = null;
+                    result.issues = issues;
+                    resolve( result );                
                 }else{
-                    resolve( {"error":error , "item":null } );
+                    result.error = error;
+                    result.issues = null;
+                    resolve( result );
                 }
             });
         });
@@ -83,7 +93,7 @@ export class GitLab {
         var i = 0;
 
         for( i = 0 ;  i < line.length ; i++ ){
-            console.log( line[i] );
+            console.log( "description : " + line[i] );
             var match = line[i].match(pattern);
             if( match ){
                 if( i+1 < line.length ){
@@ -92,16 +102,13 @@ export class GitLab {
                     console.log("key " + key );
                     if( key.indexOf(START_DATE)!== -1 ){
                         properties.startdate = val;
-                        var d = new Date( val );
-                        console.log("startdate:" + d );
+                        var d = new Date( val );                        console.log("startdate:" + d );
                     }
                     if( key.indexOf( ESTIMATION )!== -1 ){
-                        properties.estimation = val;
-                        console.log("estimation:"+val);
+                        properties.estimation = Number(val);
                     }
                     if( key.indexOf( PROGRESS )!== -1 ){
-                        properties.progress = val;
-                        console.log("progress:"+val);
+                        properties.progress = Number(val);
                     }
                     properties[key]=val;                    
                 }
@@ -130,7 +137,7 @@ export class GitLab {
         ret.json = issue;
 
         if( properties.startdate ){
-            ret.startdate = properties.startdate;
+            ret.startdate = new Date( properties.startdate );
         }
         if( properties.progress ){
             ret.progress = parseFloat( properties.progress );
@@ -145,7 +152,6 @@ export class GitLab {
             ret.estimation = properties.estimation;
         }
 
-        console.log( "issue obj %j " , ret );
         return ret;
     };
 }

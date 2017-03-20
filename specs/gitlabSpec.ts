@@ -1,5 +1,6 @@
 
 import {GitLab} from "../lib/gitlab";
+import {GitLabResult} from "../lib/gitlab";
 import {Issue} from "../lib/kata";
 
 // var gitlab = require("../lib/gitlab");
@@ -15,16 +16,16 @@ describe( "gitlab" , function(){
                 console.log("error"+error);
             }
             console.log( "total result " + result.length );
-            expect(true).toBe( result.length == 2 );
+            expect(result.length).toBe( 4 );
             done();
         });
     }, 200000 );
 
     it( "getIssues2" , function( done ){
         console.log("issues2");
-        var promise:Promise<any> = gitlab.getProjectIssue( project_id );
-        promise.then((value:any) =>{
-            var x:Issue[] = value.item;
+        var promise:Promise<GitLabResult> = gitlab.getProjectIssue( project_id );
+        promise.then((value:GitLabResult) =>{
+            var x:Issue[] = value.issues;
             console.log("end promise -> " + x.length );
             done();
         });

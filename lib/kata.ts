@@ -98,12 +98,6 @@ export class KataUtil {
     private elasticPort:number;
     private elastic:ElasticSearch;
 
-    initElasticSearch( host:string , port:number ){
-        this.elasticHost = host;
-        this.elasticPort = port;
-        this.elastic = new ElasticSearch();
-    }
-
     getCurrentTime():number {
         if( this.testTime ){
             return this.testTime.getTime();
@@ -179,6 +173,7 @@ export class KataUtil {
         ret.total = total;
         ret.planned = planned;
         ret.progress = done;
+        ret.unfinished = ret.planned - ret.progress;
         return ret;
     }
 
@@ -209,53 +204,63 @@ export class KataUtil {
     }
 
     /**
-     * 各メンバー分の未完了タスクを計算する。
-     * @param issue 
+     * メンバーごとの進捗を計算する。
+     * @param issue
+     * @return メンバーごとの状態
      */
-    calculateUnfinishedTaskForEachMember( issue:Issue[] ):Snapshot {
-        let ret = new Snapshot();
-        ret.json = {};
-        let current = this.getCurrentTime();
-        let d = new Date();
-        d.setTime( current );
-        ret.timestamp = d;
-        let i = 0;
-        for( i = 0 ; i < issue.length ; i++ ){
-            let assignee = issue[i].assignee;
-            if( ! ret.json[assignee] ){
-                ret.json[assignee] = 0;
-            }           
-            //完了しているはずのタスクの未完了分を追加
-            if( issue[i].duedate.getTime() <= current ){
-                if( issue[i].progress !== 100 ){
-                    ret.json[assignee] = ret.json[assignee] + (issue[i].progress*issue[i].estimation);
-                }
-            }
-        }
+    getMemberProgress( issue:Issue[] ):Snapshot{
+        let self = this;
+        let ret:Snapshot = new Snapshot();
+        ret.timestamp = new Date();
+        let json = {};
+        let mi:MemberIssue[] = this.getMemberIssue( issue );        
+        mi.forEach( function( i:MemberIssue ){
+            let p:Progress = self.calculateProgress( i.issues );
+            json[i.name] = p;
+        });
+        ret.json = json;
         return ret;
     }
 
     /**
-     * 
+     * 各メンバーのオープンイシュー数をカウントする。
      * @param issue 
      */
     countOpenIssuesForEachMember( issue:Issue[] ){
         let ret = new Snapshot();
         ret.json = {};
         let i = 0;
-        for( i = 0 ; i < issue.length ; i++ ){
-            let assignee = issue[i].assignee;
+        issue.forEach( function( i ){
+            let assignee = i.assignee;
             if( ! ret.json[assignee] ){
                 ret.json[assignee] = 0.0;
             }
-            if( issue[i].progress !== 100.0 ){
+            if( i.progress !== 100.0 ){
                 ret.json[assignee] = ret.json[assignee] + 1;
             }
-        }
+        });
     }
 
-    openGitLab(){
-        ;
+    /**
+     * 
+     * @param host 
+     * @param port 
+     */
+    initElasticSearch( host:string , port:number ){
+        this.elasticHost = host;
+        this.elasticPort = port;
+        this.elastic = new ElasticSearch();
+    }
+
+    /**
+     * 
+     * @param name 
+     * @param type 
+     * @param obj 
+     */
+    saveObject( name:string , type:string , obj:any ):Promise<ElasticResult>{
+        let m:ElasticsearchMapper = this.elastic.getMapper( this.elasticHost , this.elasticPort , name , type );
+        return m.promiseBulk( obj );
     }
 
     saveIssue( name:string , issue:Issue ):Promise<ElasticResult>{
@@ -272,4 +277,5 @@ export class KataUtil {
         let m:ElasticsearchMapper = this.elastic.getMapper( this.elasticHost , this.elasticPort , name , name+"Progress" );
         return m.promiseBulk( obj );
     }
+
 }
