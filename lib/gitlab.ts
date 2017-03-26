@@ -11,12 +11,6 @@ const PROGRESS = "進捗";
 const ESTIMATION = "見積";
 const ACTUALTIME ="実施";
 
-
-export class GitLabResult{
-    public error:any;
-    public issues:Issue[];
-}
-
 export class GitLab extends Repository{
     apiURL:string;
     key:string;
@@ -168,62 +162,4 @@ export class GitLab extends Repository{
        return issue;
     }
 
-    static createIssueTemplate( projectURL:string , title:string , description:string , assigneeID:string , labelIDs:string[] , startday:boolean, progress:boolean , estimation:boolean  ):string{
-        let ret:string = projectURL+"/issues/new?";
-        let p:string = "";
-        if( title ){
-            p =  "issue[title]="+title;
-        }
-
-        if( description == null ){
-            description = "";
-        }
-
-        // if( startday ){
-        //     description=description+"¥r¥n¥r¥n## --"+START_DATE+"(Ex.2016-04-01)--";
-        // }
-
-        // if( progress ){
-        //     description=description+"¥r¥n¥r¥n## --"+PROGRESS+" (%は不要)  (Ex.50)--";
-        // }
-
-        // if( estimation ){
-        //     description=description+"¥r¥n¥r¥n## --"+ESTIMATION+" (単位:H)  (Ex.10)--";
-        // }
-
-        // if( description !== "" ){
-        //     if( p!=="" ){
-        //         p = p + "&";
-        //     }
-        //     p = p + "issue[description]="+description;            
-        // }
-
-        if( assigneeID ){
-            if( p !=="" ){
-                p = p + "&";
-            }
-            p = p + "issue[assignee_id]="+assigneeID;
-        }
-
-        if( labelIDs ){
-            labelIDs.forEach( function(id){
-                if( p !=="" ){
-                    p = p + "&";
-                }
-                p = p + "issue[label_ids][]="+id;
-            });
-        }
-        ret = ret + p;
-        return encodeURI( ret );
-    }
-
-    /**
-     * 
-     * @param title 
-     * @param assigneeID 
-     * @param labelIDs 
-     */
-    createMergeRequestTemplate( title:string , assigneeID:string , labelIDs:string[] ){
-        return null;
-    }
 }
