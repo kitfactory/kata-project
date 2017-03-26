@@ -51,6 +51,7 @@ export class Issue{
     public startdate:Date;
     public duedate:Date;
     public progress:number;
+    public state:string;
     public status:IssueStatus;
     public assignee:string;
     public estimation:number;
@@ -278,4 +279,6 @@ export class KataUtil {
         return m.promiseBulk( obj );
     }
 
+
+    
 }

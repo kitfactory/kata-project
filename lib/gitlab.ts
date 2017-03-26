@@ -1,34 +1,32 @@
 'use strict';
 import { Issue } from './kata';
+import {Repository} from './repository';
+import {RepositoryResult} from './repository';
 import * as moment from "moment";
 
 var request = require('request');
-const PROPERTY_START = "--";
-const PROPERTY_END = "--";
 
 const START_DATE = "開始日";
 const PROGRESS = "進捗";
 const ESTIMATION = "見積";
 const ACTUALTIME ="実施";
 
+
 export class GitLabResult{
     public error:any;
     public issues:Issue[];
 }
 
-export class GitLab {
+export class GitLab extends Repository{
     apiURL:string;
     key:string;
 
-    constructor(){
-    }
-
-    init = ( apiURL:string , key:string)=>{
+    init( apiURL:string , key:string){
         this.apiURL = apiURL;
         this.key = key;
     }
 
-    recursiveGet =( baseUrl:string , items:Array<any> , page:number , callback:Function )=>{
+    recursiveGet( baseUrl:string , items:Array<any> , page:number , callback:Function ){
         var uri =  baseUrl + "&page=" + page;
         var opt = {
             uri: uri
@@ -49,6 +47,11 @@ export class GitLab {
         });
     }
 
+    /**
+     * 
+     * @param project 
+     * @param callback 
+     */
     getProjectIssuesAsync(project:string , callback:Function ){
         var base =  this.apiURL+"/projects/"+project+"/issues?private_token="+this.key;
         this.recursiveGet( base , [] , 1 , callback );
@@ -58,66 +61,43 @@ export class GitLab {
      * Promiseで取得する。
      * @param project
      */
-    getProjectIssue( project:string ): Promise<GitLabResult> {
+    getProjectIsssues( project:string ): Promise<RepositoryResult> {
         var self:GitLab = this;
         var ret = new Promise( function(resolve:Function){
             self.getProjectIssuesAsync(project,function( error , items ){
-                let result:GitLabResult = new GitLabResult();
+                let result:RepositoryResult = new RepositoryResult();
                 if( items !== null ){
                     let i:number;
                     let issues = [];
                     for( i = 0 ;  i < items.length ; i++ ){
-                        issues.push( self.getDescriptionProperties( items[i] ));
+                        let tmp:Issue = self.getIssueObject( items[i] );
+                        let prop:any = self.getDescriptionProperties( tmp.description );
+                        tmp= self.updateIssueProperties(tmp,prop);
+                        issues.push( tmp );
                     }
                     result.error = null;
                     result.issues = issues;
-                    resolve( result );                
                 }else{
                     result.error = error;
                     result.issues = null;
-                    resolve( result );
                 }
+                resolve( result );                
             });
         });
         return ret;
     }
 
-    /**
-     * 
-     */
-    getDescriptionProperties( issue:any   ){
-        var properties:any = {};
-        var description = issue.description;
-        var line = description.split("\n");
-        var pattern = /--.*--/;
-        var i = 0;
+    getProjectLabels( project:string ){
+        var self:GitLab = this;
+        var base =  this.apiURL+"/projects/"+project+"/issues?private_token="+this.key;
 
-        for( i = 0 ;  i < line.length ; i++ ){
-            console.log( "description : " + line[i] );
-            var match = line[i].match(pattern);
-            if( match ){
-                if( i+1 < line.length ){
-                    var key = match[0].replace( /--/g , "" );
-                    var val = line[i+1].trim();
-                    console.log("key " + key );
-                    if( key.indexOf(START_DATE)!== -1 ){
-                        properties.startdate = val;
-                        var d = new Date( val );                        console.log("startdate:" + d );
-                    }
-                    if( key.indexOf( ESTIMATION )!== -1 ){
-                        properties.estimation = Number(val);
-                    }
-                    if( key.indexOf( PROGRESS )!== -1 ){
-                        properties.progress = Number(val);
-                    }
-                    properties[key]=val;                    
-                }
-            }
-        }
 
-        var ret:Issue = new Issue();
+    }
+
+    getIssueObject( issue:any ) :Issue {
+        let ret:Issue = new Issue();
         ret.title = issue.title;
-        ret.description = description;
+        ret.description = issue.description;
         if( issue.assignee ){
             ret.assignee = issue.assignee.username;
         }
@@ -135,23 +115,115 @@ export class GitLab {
             ret.label = issue.labels;
         }
         ret.json = issue;
+        return ret;
+    }
 
-        if( properties.startdate ){
-            ret.startdate = new Date( properties.startdate );
-        }
-        if( properties.progress ){
-            ret.progress = parseFloat( properties.progress );
-        }
-        if( issue.state ){
-            ret.status = issue.state;
-            if( issue.state == "closed "){
-                ret.progress = 100;
+    /**
+     * 
+     */
+    getDescriptionProperties( description:string ):any{
+        var properties:any = {};
+        var line = description.split("\n");
+        var pattern = /--.*--/;
+        var i = 0;
+
+        for( i = 0 ;  i < line.length ; i++ ){
+            var match = line[i].match(pattern);
+            if( match ){
+                if( i+1 < line.length ){
+                    var key = match[0].replace( /--/g , "" );
+                    var val = line[i+1].trim();
+                    if( key.indexOf(START_DATE)!== -1 ){
+                        properties.startdate = val;
+                        var d = new Date( val );
+                    }
+                    if( key.indexOf( ESTIMATION )!== -1 ){
+                        properties.estimation = Number(val);
+                    }
+                    if( key.indexOf( PROGRESS )!== -1 ){
+                        properties.progress = Number(val);
+                    }
+                    properties[key]=val;                    
+                }
             }
         }
+        return properties;
+    };
+
+    updateIssueProperties( issue:Issue , properties:any ):Issue{
+        if( properties.startdate ){
+            issue.startdate = new Date( properties.startdate );
+        }
+        if( properties.progress ){
+            issue.progress = parseFloat( properties.progress );
+        }
         if( properties.estimation ){
-            ret.estimation = properties.estimation;
+            issue.estimation = properties.estimation;
+        }
+        if( issue.state ){
+            if( issue.state == "closed "){
+                issue.progress = 100;
+            }
+        }
+       return issue;
+    }
+
+    static createIssueTemplate( projectURL:string , title:string , description:string , assigneeID:string , labelIDs:string[] , startday:boolean, progress:boolean , estimation:boolean  ):string{
+        let ret:string = projectURL+"/issues/new?";
+        let p:string = "";
+        if( title ){
+            p =  "issue[title]="+title;
         }
 
-        return ret;
-    };
+        if( description == null ){
+            description = "";
+        }
+
+        // if( startday ){
+        //     description=description+"¥r¥n¥r¥n## --"+START_DATE+"(Ex.2016-04-01)--";
+        // }
+
+        // if( progress ){
+        //     description=description+"¥r¥n¥r¥n## --"+PROGRESS+" (%は不要)  (Ex.50)--";
+        // }
+
+        // if( estimation ){
+        //     description=description+"¥r¥n¥r¥n## --"+ESTIMATION+" (単位:H)  (Ex.10)--";
+        // }
+
+        // if( description !== "" ){
+        //     if( p!=="" ){
+        //         p = p + "&";
+        //     }
+        //     p = p + "issue[description]="+description;            
+        // }
+
+        if( assigneeID ){
+            if( p !=="" ){
+                p = p + "&";
+            }
+            p = p + "issue[assignee_id]="+assigneeID;
+        }
+
+        if( labelIDs ){
+            labelIDs.forEach( function(id){
+                if( p !=="" ){
+                    p = p + "&";
+                }
+                p = p + "issue[label_ids][]="+id;
+            });
+        }
+        ret = ret + p;
+        return encodeURI( ret );
+    }
+
+    /**
+     * 
+     * @param title 
+     * @param assigneeID 
+     * @param labelIDs 
+     */
+    createMergeRequestTemplate( title:string , assigneeID:string , labelIDs:string[] ){
+        return null;
+    }
 }

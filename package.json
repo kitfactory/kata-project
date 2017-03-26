@@ -5,7 +5,7 @@
   "main": "index.js",
   "types": "./lib/kata.d.ts",
   "scripts": {
-    "test": "jasmine-node specs"
+    "test": "jasmine-node --verbose --captureExceptions specs"
   },
   "repository": {
     "type": "git",

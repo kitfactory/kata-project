@@ -7,11 +7,13 @@ import {GitLab} from "../index";
 import {GitLabResult} from "../index";
 import {ElasticSearch} from "../index";
 import {ElasticResult} from "../index";
+import {Repository} from "../index";
+import {RepositoryResult} from "../index";
+
 /*
 import {ElasticsearchMapper} from "../index";
 */
 import * as moment from "moment";
-
 
 describe( "issue_test" , function(){
     it( "issue_filter" , function(){
@@ -134,7 +136,7 @@ describe( "issue_test" , function(){
         let url = "";
         let key = "";
         gitlab.init( "https://gitlab.com/api/v3" , process.env.GITLAB_TOKEN );
-        let result:GitLabResult = await gitlab.getProjectIssue(project_id);
+        let result:RepositoryResult = await gitlab.getProjectIsssues(project_id);
         expect( result.issues.length ).toBe( 4 );
 
         let util = new KataUtil();
