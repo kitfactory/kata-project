@@ -57,3 +57,7 @@ typings/
 
 # report files
 reports/
+
+./index.js
+./specs/*.js
+./lib/*.js
