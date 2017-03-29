@@ -4,7 +4,6 @@ import {Progress} from "../index";
 import {Snapshot} from "../index";
 import {MemberIssue} from "../index";
 import {GitLab} from "../index";
-import {GitLabResult} from "../index";
 import {ElasticSearch} from "../index";
 import {ElasticResult} from "../index";
 import {Repository} from "../index";

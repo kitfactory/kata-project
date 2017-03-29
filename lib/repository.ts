@@ -8,7 +8,7 @@ const START_DATE:string = "開始日";
 const PROGRESS:string = "進捗";
 const ESTIMATION:string = "見積";
 const ACTUALTIME:string ="実施";
-const DUEDATE:string ="締切日";
+const DUEDATE:string ="終了日";
 
 export class RepositoryResult{
     error: any;
@@ -72,16 +72,19 @@ export abstract class Repository{
     };
 
     protected updateIssueProperties( issue:Issue , properties:any ):Issue{
-        if( properties.startdate ){
+        if( properties.startdate != null ){
             issue.startdate = new Date( properties.startdate );
         }
-        if( properties.progress ){
+        if( properties.progress != null ){
             issue.progress = parseFloat( properties.progress );
         }
-        if( properties.estimation ){
+        if( properties.estimation != null){
             issue.estimation = properties.estimation;
         }
-        if( issue.state ){
+        if( properties.duedate != null ){
+            issue.duedate = properties.duedate;
+        }
+        if( issue.state != null ){
             if( issue.state == "closed "){
                 issue.progress = 100;
             }

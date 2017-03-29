@@ -34,11 +34,5 @@ describe( "gitlab" , function(){
     }, 200000 );
 
 
-
-
-    it( "gitlab template" , function( done){
-        let template:string = GitLab.createIssueTemplate("https://gitlab.com/kitfactory/test/","title","description",null,["103140","161263"],true,true,true);
-        console.log( "gitlab issue template " + template);
-    });
 });
 

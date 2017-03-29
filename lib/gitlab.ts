@@ -93,7 +93,7 @@ export class GitLab extends Repository{
         ret.title = issue.title;
         ret.description = issue.description;
         if( issue.assignee ){
-            ret.assignee = issue.assignee.username;
+            ret.assignee = issue.assignee.name;
         }
         if( issue.due_date ){
             let due = new Date( issue.due_date );
@@ -113,8 +113,6 @@ export class GitLab extends Repository{
     }
 
     /**
-     * 
-     */
     getDescriptionProperties( description:string ):any{
         var properties:any = {};
         var line = description.split("\n");
@@ -137,13 +135,15 @@ export class GitLab extends Repository{
                     if( key.indexOf( PROGRESS )!== -1 ){
                         properties.progress = Number(val);
                     }
+                    
                     properties[key]=val;                    
                 }
             }
         }
         return properties;
     };
-
+    */
+    /*
     updateIssueProperties( issue:Issue , properties:any ):Issue{
         if( properties.startdate ){
             issue.startdate = new Date( properties.startdate );
@@ -161,5 +161,6 @@ export class GitLab extends Repository{
         }
        return issue;
     }
+    */
 
 }
