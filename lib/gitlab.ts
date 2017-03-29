@@ -6,25 +6,25 @@ import * as moment from "moment";
 
 var request = require('request');
 
-const START_DATE = "開始日";
-const PROGRESS = "進捗";
-const ESTIMATION = "見積";
-const ACTUALTIME ="実施";
-
 export class GitLab extends Repository{
     apiURL:string;
     key:string;
+    proxy:string;
 
-    init( apiURL:string , key:string){
+    init( apiURL:string , key:string , proxy:string = null ){
         this.apiURL = apiURL;
         this.key = key;
+        this.proxy = proxy;
     }
 
     recursiveGet( baseUrl:string , items:Array<any> , page:number , callback:Function ){
         var uri =  baseUrl + "&page=" + page;
-        var opt = {
+        var opt:any = {
             uri: uri
         };
+        if( this.proxy != null ){
+            opt.proxy = this.proxy;
+        }
         var self = this;
         request.get(opt,function(error,response,body){ 
             if( error ){
