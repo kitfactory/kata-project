@@ -30,7 +30,6 @@
     "configstore": "^3.0.0",
     "elasticsearch": "^12.1.3",
     "moment": "^2.18.1",
-    "momentjs": "^2.0.0",
     "request": "^2.79.0"
   },
   "bin": {
