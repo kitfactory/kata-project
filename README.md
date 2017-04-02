@@ -4,6 +4,10 @@
 
 プロジェクトをもっと簡単に計測しよう！
 
+# kata-projectとは何だろう？
+
+わずか数行でプロジェクトが計測できるようにするスクリプト集です。kata-projectでElasticsearchに集計したデータをKibanaでビジュアライズすることで、簡単にプロジェクトの状況を把握することができるようになるでしょう。
+
 # 1.インストール
 
 ```
@@ -15,12 +19,45 @@
 
 ## 2.1.事前準備
 
-本ツールではNode.js、Elasticserach、Kibanaが必要です。
-それぞれを準備しておいてください。
+本ツールはTypeScript、Node.js、Elasticserach、Kibanaが必要です。それぞれをインストールします。
 
-## 2.2.計測コード
+なお、TypeScriptではPromiseを使用するのでtsconfig.jsonのtarget項目をes6に設定してください。
 
-わずか数行でプロジェクトが計測できます。JenkinsなどのCIツールで定期スナップを取得するのがおすすめです。
+```tsconfig.json
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es6",
+        "noImplicitAny": false,
+        "sourceMap": false
+    }
+}
+```
+
+## 2.2.イシューを使ったプロジェクト情報の取得
+
+GitLabやGitHubからプロジェクトの関する情報を取得することができます。わずか3行でプロジェクトのイシューの情報が取得できます。
+
+```
+import {GitLab} from 'kata-project';
+import {Issue} from 'kata-project';
+
+var g:GitLab = new GitLab();
+g.init( "https://gitlab.com/ api/v3", key , null );
+var i:Issue[] = g.getProjectIssues();
+
+```
+
+sampleディレクトリを覗いて見てください。
+
+
+## 2.3.イシューの情報をテンプレートで補う
+
+イシューの情報は、
+
+
+
+JenkinsなどのCIツールで定期スナップを取得するのがおすすめです。
 
 ```
 
@@ -35,7 +72,7 @@ kata.calc.EvmProject("index",["filter_label"] "dest_index");
 
 ```
 
-# 3.説明
+# 3.
 
 kata-projectはプロジェクト計測を簡単にするツールです。kata-projectではプロジェクト計測用に各ツールの共通「データ型」を定義します。そして、各ツールの入力を共通の「データ型」に変換することで様々なツールを横断して、自然とプロジェクトが計測できるようになります。
 
@@ -48,6 +85,7 @@ kata-projectはプロジェクト計測を簡単にするツールです。kata-
 ![kata-tool](./kata-tool.002.png)
 
 # 4.共通データ型
+
 
 ## 4.1.Kata-Issue-Type
 
