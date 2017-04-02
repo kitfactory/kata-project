@@ -7,7 +7,7 @@
 # 1.インストール
 
 ```
-> npm install kitfactory/kata-project
+> npm install kitfactory/kata-project --save
 
 ```
 
@@ -23,7 +23,10 @@
 わずか数行でプロジェクトが計測できます。JenkinsなどのCIツールで定期スナップを取得するのがおすすめです。
 
 ```
+
+
 var kata = require('kata-project');
+
 
 kata.initGitLab("http://..../api/v3", key  );
 kata.initElastic("localhost",port);
@@ -119,5 +122,4 @@ kata-excel-test
 kata-encrypt-setting
 kata-decrypt-setting
 ```
-
 

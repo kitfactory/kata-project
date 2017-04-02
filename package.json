@@ -32,12 +32,6 @@
     "moment": "^2.18.1",
     "request": "^2.79.0"
   },
-  "bin": {
-    "kata-gitlab-issue": "bin/gitlab-issue.js",
-    "kata-github-issue": "bin/github-issue.js",
-    "kata-aggregate-evm": "bin/aggregate-evm.js",
-    "kata-aggregate-ranking": "bin/aggregate-ranking.js"
-  },
   "devDependencies": {
     "@types/jasmine": "^2.5.43",
     "@types/node": "^7.0.5",
