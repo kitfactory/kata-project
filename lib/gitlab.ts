@@ -11,13 +11,13 @@ export class GitLab extends Repository{
     key:string;
     proxy:string;
 
-    init( apiURL:string , key:string , proxy:string = null ){
+    public init( apiURL:string , key:string , proxy:string = null ){
         this.apiURL = apiURL;
         this.key = key;
         this.proxy = proxy;
     }
 
-    recursiveGet( baseUrl:string , items:Array<any> , page:number , callback:Function ){
+    private recursiveGet( baseUrl:string , items:Array<any> , page:number , callback:Function ){
         var uri =  baseUrl + "&page=" + page;
         var opt:any = {
             uri: uri
@@ -46,16 +46,17 @@ export class GitLab extends Repository{
      * @param project 
      * @param callback 
      */
-    getProjectIssuesAsync(project:string , callback:Function ){
+    public getProjectIssuesAsync(project:string , callback:Function ){
         var base =  this.apiURL+"/projects/"+project+"/issues?private_token="+this.key;
         this.recursiveGet( base , [] , 1 , callback );
     };
 
     /**
-     * Promiseで取得する。
-     * @param project
+     * IssueをPromiseで取得する。
+     * @param project (該当プロジェクトのID)
+     * @return RepositoryResultのPromise
      */
-    getProjectIsssues( project:string ): Promise<RepositoryResult> {
+    public getProjectIsssues( project:string ): Promise<RepositoryResult> {
         var self:GitLab = this;
         var ret = new Promise( function(resolve:Function){
             self.getProjectIssuesAsync(project,function( error , items ){
@@ -81,14 +82,17 @@ export class GitLab extends Repository{
         return ret;
     }
 
-    getProjectLabels( project:string ){
+    protected getProjectLabels( project:string ){
         var self:GitLab = this;
         var base =  this.apiURL+"/projects/"+project+"/issues?private_token="+this.key;
-
-
     }
 
-    getIssueObject( issue:any ) :Issue {
+    /**
+     * APIから取得されたJSONをもとにIssueオブジェクトを作成する
+     * @param issue APIの取得値
+     * @return Issueオブジェクト
+     */
+    protected getIssueObject( issue:any ) :Issue {
         let ret:Issue = new Issue();
         ret.title = issue.title;
         ret.description = issue.description;
@@ -111,56 +115,5 @@ export class GitLab extends Repository{
         ret.json = issue;
         return ret;
     }
-
-    /**
-    getDescriptionProperties( description:string ):any{
-        var properties:any = {};
-        var line = description.split("\n");
-        var pattern = /--.*--/;
-        var i = 0;
-
-        for( i = 0 ;  i < line.length ; i++ ){
-            var match = line[i].match(pattern);
-            if( match ){
-                if( i+1 < line.length ){
-                    var key = match[0].replace( /--/g , "" );
-                    var val = line[i+1].trim();
-                    if( key.indexOf(START_DATE)!== -1 ){
-                        properties.startdate = val;
-                        var d = new Date( val );
-                    }
-                    if( key.indexOf( ESTIMATION )!== -1 ){
-                        properties.estimation = Number(val);
-                    }
-                    if( key.indexOf( PROGRESS )!== -1 ){
-                        properties.progress = Number(val);
-                    }
-                    
-                    properties[key]=val;                    
-                }
-            }
-        }
-        return properties;
-    };
-    */
-    /*
-    updateIssueProperties( issue:Issue , properties:any ):Issue{
-        if( properties.startdate ){
-            issue.startdate = new Date( properties.startdate );
-        }
-        if( properties.progress ){
-            issue.progress = parseFloat( properties.progress );
-        }
-        if( properties.estimation ){
-            issue.estimation = properties.estimation;
-        }
-        if( issue.state ){
-            if( issue.state == "closed "){
-                issue.progress = 100;
-            }
-        }
-       return issue;
-    }
-    */
 
 }

@@ -1,4 +1,4 @@
-import {KataUtil} from "../index";
+import {Kata} from "../index";
 import {Issue} from "../index";
 import {Progress} from "../index";
 import {Snapshot} from "../index";
@@ -23,7 +23,7 @@ describe( "issue_test" , function(){
 
         var issues:Issue[] = [ i , j ];
 
-        let util:KataUtil = new KataUtil();
+        let util:Kata = new Kata();
         let x = util.filterIssues( "x" , issues );
         console.log( "x length" + x.length );
         let z = util.filterIssues( "foo" , issues );
@@ -31,7 +31,7 @@ describe( "issue_test" , function(){
     });
 
     it( "caluculate_progress" , function(){
-        let util:KataUtil = new KataUtil();
+        let util:Kata = new Kata();
         util.testTime = new Date(2017,3,1);
         console.log( "util testtime : " + util.getCurrentTime() );
 
@@ -114,7 +114,7 @@ describe( "issue_test" , function(){
 
         let is = [i1,i2,i3,i4];
 
-        let util = new KataUtil();
+        let util = new Kata();
         let mi:MemberIssue[] = util.getMemberIssue( is );
         expect( mi.length ).toBe( 3 );
         mi.forEach( function(m ){
@@ -138,7 +138,7 @@ describe( "issue_test" , function(){
         let result:RepositoryResult = await gitlab.getProjectIsssues(project_id);
         expect( result.issues.length ).toBe( 4 );
 
-        let util = new KataUtil();
+        let util = new Kata();
         util.testTime = new Date("2017-03-20");
 
         let filtered:Issue[] = util.filterIssues( "filter1" , result.issues );

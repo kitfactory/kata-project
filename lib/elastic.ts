@@ -1,6 +1,10 @@
 'use strinct';
 var elasticsearch = require('elasticsearch');
 
+import {Issue} from './kata';
+import {Snapshot} from './kata';
+import {Progress} from './kata';
+
 export interface ElasticCallback{ ( error:any ,result:any ): void };
 
 export class ElasticResult{
@@ -65,7 +69,7 @@ export class ElasticsearchMapper {
     }
 
     /**
-     * 
+     * IDなしで保存。
      * @param obj 
      * @param callback 
      */
@@ -104,6 +108,11 @@ export class ElasticsearchMapper {
         return ret;
     }
 
+    /**
+     * 
+     * @param obj 更新する。
+     * @param callback 
+     */
     update( obj:any ,callback:Function ){
             this.client.index({
                 index: this.index,
@@ -175,7 +184,11 @@ export class ElasticsearchMapper {
         return ret;
     }
 
-
+    /**
+     * 指定のqueryで検索する
+     * @param query 
+     * @param callback 
+     */
     search( query:string , callback:Function ){
         this.client.search({
             index: this.index,
@@ -266,5 +279,67 @@ export class ElasticSearch {
         var ret:ElasticsearchMapper = new ElasticsearchMapper(host,port,index,type);
         return ret;
     }
+
+    private host:string;
+    private port:number;
+
+    /**
+     * 初期化をする。
+     * @param host Elasticsearchのホスト
+     * @param port Elasticsearchのポート
+     */
+    init( host:string , port:number ){
+        this.host = host;
+        this.port = port;
+    }
+
+    /**
+     * 
+     * @param name 
+     * @param type 
+     * @param obj 
+     */
+    saveObject( name:string , type:string , obj:any ):Promise<ElasticResult>{
+        let m:ElasticsearchMapper = this.getMapper( this.host , this.port , name , type );
+        return m.promiseBulk( obj );
+    }
+
+    /**
+     * Issueオブジェクトを保存する。
+     * @param name 
+     * @param issue 
+     */
+    saveIssue( name:string , issue:Issue ):Promise<ElasticResult>{
+        let m:ElasticsearchMapper = this.getMapper( this.host , this.port , name , name+"Issue" );
+        return m.promiseBulk( issue );
+    };
+
+    /**
+     * Snapshotオブジェクトを保存する。
+     * @param name Snapshotオブジェクトにつける名前(インデックス)
+     * @param obj 
+     */
+    saveSnapshot( name:string , obj:Snapshot ) :Promise<ElasticResult>{
+        let m:ElasticsearchMapper = this.getMapper( this.host , this.port , name , name+"Snapshot" );
+        return m.promiseBulk( obj );
+    }
+
+
+    /**
+     * Progressオブジェクトを保存する。
+     * @param name Snapshotオブジェクトにつける名前(インデックス)
+     * @param obj 
+     */
+    saveProgress( name:string , obj:Progress ) : Promise<ElasticResult>{
+        let m:ElasticsearchMapper = this.getMapper( this.host , this.port , name , name+"Progress" );
+        return m.promiseBulk( obj );
+    }
+
+
+
+
+
+
+
 }
 

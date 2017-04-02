@@ -31,6 +31,7 @@ export class Item {
 
 
 /*
+Issueデータを表すクラス
 |項目|内容|
 |:--|:--|
 |ID|ID|
@@ -40,6 +41,7 @@ export class Item {
 |startdate|開始日|
 |duedate|締切日|
 |progress|進捗(%)|
+|rest|残り|
 |status|open/close|
 |assignee|担当者|
 |estimation|見積工数|
@@ -51,6 +53,7 @@ export class Issue{
     public startdate:Date;
     public duedate:Date;
     public progress:number;
+    public rest:number;
     public state:string;
     public status:IssueStatus;
     public assignee:string;
@@ -86,7 +89,7 @@ export class Snapshot{
     public json:any;
 }
 
-export class KataUtil {
+export class Kata {
 
     public testTime:Date = null;
 

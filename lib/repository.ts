@@ -21,13 +21,13 @@ export abstract class Repository{
 
     }
 
-    abstract getProjectIsssues( projectID:string ):Promise<RepositoryResult>;    
+    protected abstract getProjectIsssues( projectID:string ):Promise<RepositoryResult>;    
 
     /**
      * サーバーなどの応答からイシュー情報を
      * @param issue サーバー応答などのイシューの情報となるオブジェクト
      */
-    abstract getIssueObject( issue:any ) :Issue;
+    protected abstract getIssueObject( issue:any ) :Issue;
 
     /**
      * Issueの記載からプロパティを取得する。
@@ -76,7 +76,7 @@ export abstract class Repository{
             issue.startdate = new Date( properties.startdate );
         }
         if( properties.progress != null ){
-            issue.progress = parseFloat( properties.progress );
+            issue.progress = properties.progress;
         }
         if( properties.estimation != null){
             issue.estimation = properties.estimation;
@@ -88,6 +88,9 @@ export abstract class Repository{
             if( issue.state == "closed "){
                 issue.progress = 100;
             }
+        }
+        if( issue.progress != null && issue.estimation != null ){
+            issue.rest = issue.estimation - (issue.estimation * issue.progress /100 );
         }
        return issue;
     }

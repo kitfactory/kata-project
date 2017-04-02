@@ -67,8 +67,10 @@
 				<h1 id="kata-project">kata-project</h1>
 				<p><img src="./kata.png" alt="kata.png"></p>
 				<p>プロジェクトをもっと簡単に計測しよう！</p>
-				<h1 id="kata-project-">kata-projectとは何だろう？</h1>
-				<p>わずか数行でプロジェクトが計測できるようにするスクリプト集です。kata-projectでElasticsearchに集計したデータをKibanaでビジュアライズすることで、簡単にプロジェクトの状況を把握することができるようになるでしょう。</p>
+				<h1 id="kata-project-">kata-projectは何をしてくれるのか？</h1>
+				<p>kata-projectはわずか数行でプロジェクトが計測できるようにするスクリプト集です。プロジェクトを型にはめることがある意味の目標です。kata-projectでElasticsearchに集計したデータをKibanaでビジュアライズすることで、簡単にプロジェクトの状況を把握することができるようになるでしょう。</p>
+				<p><strong> プロジェクト全体の進捗 </strong></p>
+				<p><strong> 個人ごとの状況 </strong></p>
 				<h1 id="1-">1.インストール</h1>
 				<pre><code>&gt; npm <span class="hljs-keyword">install</span> kitfactory/kata-<span class="hljs-keyword">project</span> --save
 </code></pre><h1 id="2-">2.利用方法:</h1>
@@ -94,8 +96,20 @@ g.init( <span class="hljs-string">"https://gitlab.com/ api/v3"</span>, key , <sp
 <span class="hljs-keyword">var</span> i:Issue[] = g.getProjectIssues();
 </code></pre><p>sampleディレクトリを覗いて見てください。</p>
 				<h2 id="2-3-">2.3.イシューの情報をテンプレートで補う</h2>
-				<p>イシューの情報は、</p>
-				<p>JenkinsなどのCIツールで定期スナップを取得するのがおすすめです。</p>
+				<p>イシューの情報はテンプレートに記録しましょう。kata-projectではイシューの記述部分に「--キーワード(任意の文字列)--」と記載されている場合に、その次の行をそのプロパティの値として認識します。</p>
+				<p>以下のようにイシューに記載すると見積を10Hとして記載することが出来ます。</p>
+				<pre><code><span class="hljs-comment">##</span> <span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-comment">見積(単位H</span> <span class="hljs-comment">記入例:10)</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span>
+<span class="hljs-comment">10</span>
+</code></pre><h2 id="2-4-">2.4.イシューを分析する。</h2>
+				<p>KataUtilクラスにはイシューを分析するためのメソッドが幾つか用意されています。プロジェクトの全体の工数や進捗を計算することが可能です。</p>
+				<h2 id="2-5-elasticsearch-">2.5. Elasticsearchに保存する。</h2>
+				<p>分析の結果をProgressやSanpshotとしてElasticsearchに保存をします。</p>
+				<pre><code>
+<span class="hljs-keyword">let</span> kat<span class="hljs-variable">a:KataUtil</span>
+</code></pre><h2 id="2-6-">2.6. 定期的に実行する。</h2>
+				<p>JenkinsなどのCIツールでスクリプトを実行し、定期スナップを取得するのがおすすめです。</p>
+				<h2 id="2-7-kibana-">2.7. Kibanaで確認する。</h2>
+				<p>最後にElasticsearchで保存したデータをKibanaでビジュアライズしましょう。これで</p>
 				<pre><code>
 
 <span class="mipsasm">var kata = require(<span class="hljs-string">'kata-project'</span>)<span class="hljs-comment">;</span>
