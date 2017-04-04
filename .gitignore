@@ -58,16 +58,3 @@ typings/
 # report files
 reports/
 
-./index.js
-./specs/*.js
-./lib/*.js
-index.js
-elastic.js
-github.js
-gitlab.js
-kata.js
-repository.js
-elasticSpec.js
-githubSpec.js
-gitlabSpec.js
-kataSpec.js
