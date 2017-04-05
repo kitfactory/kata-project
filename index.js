@@ -8,3 +8,5 @@ __export(require("./lib/gitlab"));
 __export(require("./lib/elastic"));
 __export(require("./lib/repository"));
 __export(require("./lib/github"));
+__export(require("./lib/exporter"));
+__export(require("./lib/excel"));

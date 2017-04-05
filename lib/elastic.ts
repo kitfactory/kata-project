@@ -336,10 +336,18 @@ export class ElasticSearch {
     }
 
 
-
-
-
-
+    /**
+     * 最新としてオブジェクトを保存する。
+     * @param name インデックス名
+     * @param obj 保存オブジェクト
+     */
+    saveLatestObject( name:string , obj:any ) :Promise<ElasticResult>{
+        let copy = Object.assign({}, obj);
+        copy.id = 1;
+        let type:string = name+ "_latest";
+        let m:ElasticsearchMapper = this.getMapper( this.host , this.port , name , type );
+        return m.promiseBulk( copy );
+    }
 
 }
 

@@ -78,6 +78,8 @@ export class Progress{
     public planned:number;
     public progress:number;
     public unfinished:number;
+    public items:number;
+    public closed:number;
 }
 
 /**
@@ -145,12 +147,16 @@ export class Kata {
         let planned = 0;
         let done = 0;
         let current = this.getCurrentTime();
+        let closed = 0;
         for( i = 0 ; i < issue.length ; i++ ){
             //見積値は常に総和を取る。
             total = total + issue[i].estimation;
             //進捗値を追加
-            if( issue[i].progress ){
+            if( issue[i].progress != null ){
                 done = done + (issue[i].estimation * issue[i].progress / 100.0);
+                if( issue[i].progress == 100 ){
+                    closed = closed++;
+                }
             }
             //完了しているはずであればplannedに追加
             if( issue[i].startdate ){
@@ -178,6 +184,8 @@ export class Kata {
         ret.planned = planned;
         ret.progress = done;
         ret.unfinished = ret.planned - ret.progress;
+        ret.items = issue.length;
+        ret.closed = closed;
         return ret;
     }
 
@@ -281,7 +289,4 @@ export class Kata {
         let m:ElasticsearchMapper = this.elastic.getMapper( this.elasticHost , this.elasticPort , name , name+"Progress" );
         return m.promiseBulk( obj );
     }
-
-
-    
 }
