@@ -11,3 +11,4 @@ __export(require("./lib/github"));
 __export(require("./lib/exporter"));
 __export(require("./lib/excel"));
 __export(require("./lib/ganttproject"));
+__export(require("./lib/msproject"));

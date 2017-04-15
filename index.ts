@@ -6,3 +6,4 @@ export * from './lib/github';
 export * from './lib/exporter';
 export * from './lib/excel';
 export * from './lib/ganttproject';
+export * from './lib/msproject';
