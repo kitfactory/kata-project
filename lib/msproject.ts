@@ -5,9 +5,29 @@ import { Issue } from './kata';
 var jsonxml = require('jsontoxml');
 
 
+class Resources{
+    public id:Map<string,number>;
+    public memberStart:Map<string,Date>;
+    public memberFinish:Map<string,Date>;
+    public totalStart:Date;
+    public totalFinish:Date;
+}
+
+class Assignments{
+    ;
+}
+
+class Tasks{
+    ;
+}
+
 export class MSProject extends Exporter {
 
 
+    private getDateString( date:Date ):string{
+        let s:string = date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDay();
+        return s;
+    }
     /**
      * StartDate,EndDate,CurrentDateを算出し、ヘッダー部分を作成する。
      * @param issues 
@@ -237,12 +257,126 @@ export class MSProject extends Exporter {
      * @param file 
      */
     public buildTasksNode(issues: Issue[]) :any{
-        let ret = {};
         let taskArray = [];
         issues.forEach( function( issue ){
             taskArray.push();
         });
+
+        let ret = {Tasks:taskArray};
         return ret;
+    }
+
+    
+
+
+    /**
+     * 
+     * @param issues
+     **/
+    public buildResourcesNode( issues:Issue[] ): any {
+        let s:Set<string> = new Set();
+        let start:Map<string,Date> = new Map();
+        let finish:Map<string,Date> = new Map();
+        issues.forEach( function( issue ){
+            if( issue.assignee != null ){
+                let name:string = issue.assignee;
+                s.add( name );
+                if( start.has( name )){
+                    let t:Date = start.get( name );
+                    if( t.getTime() >= issue.startdate.getTime() ){
+                        start.set( name , issue.startdate );
+                    }
+                }else{
+                    start.set( name , issue.startdate );
+                }
+                if( finish.has( name )){
+                    let t:Date = finish.get( name );
+                    if( t.getTime() <= issue.duedate.getTime() ){
+                        finish.set( name , issue.startdate );
+                    }
+                }else{
+                    finish.set( name , issue.startdate );
+                }
+            }
+        });
+
+        let array:string[] = Array.from( s );
+        let resources = [];
+        for( let i = 1 ; i <= array.length ; i++ ){
+            let r = {
+                Resource:[
+                    {UID: i },
+                    {ID: i },
+                    {Name: array[i-1]},
+                    {Type: 1},
+                    {IsNull: 0},
+                    {EmailAddress:""},
+                    {MaxUnits:1},
+                    {PeakUnits:1},
+                    {OverAllocated:0},
+                    {Start:this.getDateString(start.get(array[i-1]))+"T08:00:00"},
+                    {Finish:this.getDateString(finish.get(array[i-1]))+"T17:00:00"},
+                    {CanLevel:0},
+                    {StandardRateFormat:3},
+                    {OvertimeRateFormat:3},
+                    {IsGeneric:0},
+                    {IsInactive:0},
+                    {IsEnterprise:0},
+                    {IsBudget:0},
+                    {AvailabilityPeriods:""}
+                ]
+            };
+            resources.push( r );
+        }
+        let ret = { Resources:resources};
+        console.log("resource %j", ret );
+        return ret;
+    }
+
+    public buildAssignementsNode( issues:Issue[] ):any{
+
+
+
+
+
+    }
+
+    /**
+     * 担当者にIDを割り振るテーブルを作成する。
+     * @param issues 
+     * @return 担当者とIDのMap
+     */
+    private createResourceIDTable( issues:Issue[] ):Map<string,number>{
+        let assignees:Set<string> = new Set();
+        issues.forEach( (issue)=>{
+            if( issue.assignee != null ){
+                assignees.add( issue.assignee );
+            }
+        });
+        let array:string[] = Array.from( assignees );
+        let ret:Map<string,number> = new Map();
+        for( let i = 0 ; i < array.length ; i++ ){
+            ret.set( array[i] , i+1 );
+        }
+        return ret;
+    }
+
+    /**
+     * 
+     * @param issues 
+     */
+    public buildNodes( issues:Issue[] ){
+        let resourceID:Map<string,number> = this.createResourceIDTable(issues);
+
+
+        let tasks = [];
+        let resources = [];
+        let assignments = [];
+        let memberStart:Map<string,Date> = new Map();
+        let memberFinish:Map<string,Date> = new Map();
+        let start:Date = null;
+        let finish:Date = null;
+
     }
 
     public saveIssueList(issues: Issue[], file: string): Promise<ExportResult> {
