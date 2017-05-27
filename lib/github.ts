@@ -5,7 +5,6 @@ import {RepositoryResult} from './repository';
 var request = require('request');
 
 /**
- * curl https://api.github.com/repos/kitfactory/kata-test/issues?access_token=891986eaa2383498581f5056b182a1032170dec3&filter=all
  */
 export class GitHub extends Repository{
 
