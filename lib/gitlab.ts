@@ -96,22 +96,26 @@ export class GitLab extends Repository{
         let ret:Issue = new Issue();
         ret.title = issue.title;
         ret.description = issue.description;
-        if( issue.assignee ){
+        if( issue.assignee != null ){
             ret.assignee = issue.assignee.name;
         }
-        if( issue.due_date ){
+        if( issue.due_date != null ){
             let due = new Date( issue.due_date );
             due.setHours( 23 );
             due.setMinutes( 59 );
             due.setUTCSeconds( 59 );
             ret.duedate = due;
         }
-        if( issue.web_url ){
+        if( issue.web_url != null ){
             ret.url = issue.web_url;
         }
-        if( issue.labels ){
+        if( issue.labels != null ){
             ret.label = issue.labels;
         }
+        if( issue.state != null ){
+            ret.state = issue.state;
+        }
+
         ret.json = issue;
         return ret;
     }
