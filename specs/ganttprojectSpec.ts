@@ -25,7 +25,5 @@ describe( "gantt" , function(){
         let g:GanttProject = new GanttProject();
         g.saveIssueList( [i1,i2] , "hoge.csv" );
 
-
-
     });
 });

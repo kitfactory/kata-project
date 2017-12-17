@@ -58,7 +58,7 @@ export class GitLab extends Repository{
      */
     public getProjectIsssues( project:string ): Promise<RepositoryResult> {
         var self:GitLab = this;
-        var ret = new Promise( function(resolve:Function){
+        var ret = new Promise( function (resolve: (result:RepositoryResult)=> void ){
             self.getProjectIssuesAsync(project,function( error , items ){
                 let result:RepositoryResult = new RepositoryResult();
                 if( items !== null ){

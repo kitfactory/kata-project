@@ -58,6 +58,7 @@ export class Issue{
     public status:IssueStatus;
     public assignee:string;
     public estimation:number;
+    
     public url:string;
     public label:string[];
     public json:any;
