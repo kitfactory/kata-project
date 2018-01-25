@@ -3,13 +3,15 @@ import { Issue } from './kata';
 import {Repository} from './repository';
 import {RepositoryResult} from './repository';
 import * as moment from "moment";
+import * as request from "request";
 
-var request = require('request');
+
+var request:request.RequestAPI<request.Request, request.CoreOptions, request.RequiredUriUrl> = require('request');
 
 export class GitLab extends Repository{
     apiURL:string;
     key:string;
-    proxy:string;
+    proxy:string | null;
 
     public init( apiURL:string , key:string , proxy:string = null ){
         this.apiURL = apiURL;
@@ -19,14 +21,14 @@ export class GitLab extends Repository{
 
     private recursiveGet( baseUrl:string , items:Array<any> , page:number , callback:Function ){
         var uri =  baseUrl + "&page=" + page;
-        var opt:any = {
+        var opt:request.TOption = {
             uri: uri
         };
         if( this.proxy != null ){
             opt.proxy = this.proxy;
         }
         var self = this;
-        request.get(opt,function(error,response,body){ 
+        request.get(opt,function(error:any,response:request.,body){ 
             if( error ){
                 callback( error , null );
             }else{
